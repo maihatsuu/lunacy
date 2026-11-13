@@ -25,9 +25,11 @@ The design spec is `../Lunacy.md`, one directory up from this repo (not committe
 - `LunarEvents`: `END_WORLD_TICK` edge detection for the moonrise action-bar messages.
 - **Shooting stars:** `star/ShootingStars` + `star/FallingStar`, ticked from `END_WORLD_TICK` in the Overworld.
   - **Spawn chance:** each player rolls `starsPerNight / 10000 / (players within starMaxDistance)` every tick. That's how nearby players share stars.
-  - **Flight:** a 40-tick straight-line fall. Particles go to every player with `sendParticles(player, …, force = true, …)`, which reaches 512 blocks.
-  - **Impact:** rolls the loot table and spawns `ItemEntity`s with glowing, unlimited lifetime, and entity tags `lunacy.star_drop` + `lunacy.star_night.<nightIndex>`.
-  - **Fade at dawn:** a drop is stale unless it's night with the same night index. A sweep every 20 ticks, plus `ServerEntityEvents.ENTITY_LOAD` for chunks that load later, puff them away. Discards found during entity load are queued for the next tick.
+  - **The star is the drop:** the loot table is rolled at launch, and each stack spawns as a glowing, never-despawning `ItemEntity` 120 blocks above the landing spot. It starts up to 20 blocks to the side so item drag drifts it onto the spot. Vanilla item physics make the fall take about 4–5 s.
+  - **While falling:** it has the `lunacy.star_falling` tag and `setNeverPickUp()`. Each tick a particle trail is drawn behind it with `sendParticles(player, …, force = true, …)`, which reaches 512 blocks. Drops that reload mid-fall are re-tracked through `ServerEntityEvents.ENTITY_LOAD`.
+  - **Landing:** on ground or fluid, it gets a normal pickup delay plus the impact flash and sounds.
+  - **Fade at dawn:** drops carry `lunacy.star_drop` + `lunacy.star_night.<nightIndex>`, and a drop is stale unless it's night with the same index. A sweep every 20 ticks, plus `ENTITY_LOAD` for chunks that load later, puff them away. Discards found during entity load are queued for the next tick.
+- `LunacyCommand`: `/lunacy star` (permission level 2) drops a star near the caller right away, for testing.
 - `EchoShardXp`: `UseItemCallback` (1.21.1 signature returning `InteractionResultHolder`) gives XP and consumes one shard on the server.
 - `config/LunacyConfig`: a Gson POJO at `config/lunacy.json`, loaded in `onInitialize` and read live through `LunacyConfig.get()`. `save()` sanitizes the values and writes them out.
 - **Client config screen (optional):**

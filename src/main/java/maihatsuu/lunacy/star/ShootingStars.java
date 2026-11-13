@@ -33,14 +33,28 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/** New moon nights: shooting stars fall near players and leave a glowing drop that fades at sunrise. */
+/**
+ * New moon nights: shooting stars fall near players. The star is the drop itself: a glowing item
+ * spawned high in the sky that falls under vanilla item physics, trailing particles, with an
+ * impact flash when it lands. Unclaimed drops fade at sunrise.
+ */
 public final class ShootingStars {
 	public static final ResourceKey<LootTable> LOOT_TABLE = ResourceKey.create(Registries.LOOT_TABLE, Lunacy.id("gameplay/shooting_star"));
 	public static final String DROP_TAG = "lunacy.star_drop";
+	/** Present while the drop is still in the air; it can't be picked up until it lands. */
+	public static final String FALLING_TAG = "lunacy.star_falling";
 	private static final String NIGHT_TAG_PREFIX = "lunacy.star_night.";
 	private static final double NIGHT_LENGTH = MoonPhase.NIGHT_END - MoonPhase.NIGHT_START;
 	private static final int TRAIL_POINTS_PER_TICK = 6;
 	private static final int LANDING_ATTEMPTS = 5;
+	/** Height above the surface the star appears at. Item drag makes 120 blocks take about 4-5 s. */
+	private static final int FALL_HEIGHT = 120;
+	/** Item drag (x0.98 per tick) makes total horizontal drift about 50x the starting speed. */
+	private static final double DRIFT_DISTANCE = 20.0;
+	private static final double DRAG_FACTOR = 50.0;
+	/** Give up on the impact effect if it somehow never lands (e.g. stuck on something odd). */
+	private static final int MAX_FALL_TICKS = 400;
+	private static final int LANDED_PICKUP_DELAY = 10;
 
 	private static final List<FallingStar> FALLING = new ArrayList<>();
 	private static final List<ItemEntity> TO_FADE = new ArrayList<>();
@@ -51,8 +65,14 @@ public final class ShootingStars {
 	public static void register() {
 		ServerTickEvents.END_WORLD_TICK.register(ShootingStars::tick);
 		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
-			if (entity instanceof ItemEntity item && isStale(item, level)) {
+			if (!(entity instanceof ItemEntity item) || !item.getTags().contains(DROP_TAG)) {
+				return;
+			}
+			if (isStale(item, level)) {
 				TO_FADE.add(item);
+			} else if (item.getTags().contains(FALLING_TAG) && !isTracked(item)) {
+				// Reloaded mid-fall (chunk unload or server restart): keep drawing its trail.
+				FALLING.add(new FallingStar(item));
 			}
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
@@ -99,19 +119,46 @@ public final class ShootingStars {
 		}
 	}
 
-	/** Starts a shooting star that lands near the player. Returns false if no landing spot was found. */
+	/** Drops a shooting star near the player. Returns false if no landing spot was found. */
 	public static boolean launch(ServerLevel level, ServerPlayer player, LunacyConfig config) {
 		BlockPos landing = findLanding(level, player, config);
 		if (landing == null) {
 			return false;
 		}
 		RandomSource random = level.random;
-		Vec3 end = Vec3.atBottomCenterOf(landing);
+		double startY = Math.min(landing.getY() + FALL_HEIGHT, level.getMaxBuildHeight() - 2);
+
+		// Start up to DRIFT_DISTANCE away so drag carries it sideways onto the landing spot.
+		// Fall back to straight down if that start column isn't ticking.
 		double angle = random.nextDouble() * Math.PI * 2;
-		double distance = Mth.nextDouble(random, 80, 120);
-		double y = Math.min(end.y + 150, level.getMaxBuildHeight() - 1);
-		Vec3 start = new Vec3(end.x + Math.cos(angle) * distance, y, end.z + Math.sin(angle) * distance);
-		FALLING.add(new FallingStar(start, end));
+		double dx = Math.cos(angle);
+		double dz = Math.sin(angle);
+		double startX = landing.getX() + 0.5 - dx * DRIFT_DISTANCE;
+		double startZ = landing.getZ() + 0.5 - dz * DRIFT_DISTANCE;
+		double speed = DRIFT_DISTANCE / DRAG_FACTOR;
+		if (!level.isPositionEntityTicking(BlockPos.containing(startX, landing.getY(), startZ))) {
+			startX = landing.getX() + 0.5;
+			startZ = landing.getZ() + 0.5;
+			speed = 0.0;
+		}
+
+		LootTable table = level.getServer().reloadableRegistries().getLootTable(LOOT_TABLE);
+		LootParams params = new LootParams.Builder(level)
+				.withParameter(LootContextParams.ORIGIN, Vec3.atBottomCenterOf(landing))
+				.create(LootContextParamSets.CHEST);
+		String nightTag = NIGHT_TAG_PREFIX + MoonPhase.nightIndex(level);
+		for (ItemStack stack : table.getRandomItems(params)) {
+			ItemEntity item = new ItemEntity(level, startX, startY, startZ, stack, dx * speed, -0.5, dz * speed);
+			item.setGlowingTag(true);
+			item.setUnlimitedLifetime();
+			item.setNeverPickUp();
+			item.addTag(DROP_TAG);
+			item.addTag(FALLING_TAG);
+			item.addTag(nightTag);
+			if (level.addFreshEntity(item) && !isTracked(item)) {
+				FALLING.add(new FallingStar(item));
+			}
+		}
 		return true;
 	}
 
@@ -123,7 +170,7 @@ public final class ShootingStars {
 			int x = Mth.floor(player.getX() + Math.cos(angle) * distance);
 			int z = Mth.floor(player.getZ() + Math.sin(angle) * distance);
 			BlockPos column = new BlockPos(x, player.getBlockY(), z);
-			if (!level.isLoaded(column)) {
+			if (!level.isPositionEntityTicking(column)) {
 				continue;
 			}
 			BlockPos surface = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column);
@@ -140,25 +187,52 @@ public final class ShootingStars {
 
 	// Flight and impact
 
+	private static boolean isTracked(ItemEntity item) {
+		for (FallingStar star : FALLING) {
+			if (star.item == item) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private static void tickFalling(ServerLevel level) {
 		Iterator<FallingStar> it = FALLING.iterator();
 		while (it.hasNext()) {
 			FallingStar star = it.next();
-			double from = (double) star.age / FallingStar.FALL_TICKS;
-			star.age++;
-			double to = (double) star.age / FallingStar.FALL_TICKS;
+			ItemEntity item = star.item;
+			if (!item.isAlive()) {
+				// Unloaded with its chunk (ENTITY_LOAD picks it up again) or destroyed.
+				it.remove();
+				continue;
+			}
+			if (item.level() != level) {
+				continue;
+			}
+			Vec3 pos = item.position();
 			for (int i = 1; i <= TRAIL_POINTS_PER_TICK; i++) {
-				Vec3 p = star.at(Mth.lerp((double) i / TRAIL_POINTS_PER_TICK, from, to));
+				Vec3 p = star.lastPos.lerp(pos, (double) i / TRAIL_POINTS_PER_TICK);
 				sendForced(level, ParticleTypes.END_ROD, p, 1, 0.0, 0.0);
 				if (i % 2 == 0) {
 					sendForced(level, ParticleTypes.FIREWORK, p, 1, 0.15, 0.01);
 				}
 			}
-			if (star.landed()) {
+			star.lastPos = pos;
+			star.age++;
+			boolean landed = item.onGround() || item.isInWater() || item.isInLava();
+			if (landed || star.age >= MAX_FALL_TICKS) {
 				it.remove();
-				impact(level, star.end);
+				land(item);
+				if (landed) {
+					impact(level, pos);
+				}
 			}
 		}
+	}
+
+	private static void land(ItemEntity item) {
+		item.removeTag(FALLING_TAG);
+		item.setPickUpDelay(LANDED_PICKUP_DELAY);
 	}
 
 	private static void impact(ServerLevel level, Vec3 pos) {
@@ -166,28 +240,9 @@ public final class ShootingStars {
 		sendForced(level, ParticleTypes.FLASH, flash, 1, 0.0, 0.0);
 		sendForced(level, ParticleTypes.FIREWORK, flash, 40, 0.4, 0.15);
 		sendForced(level, ParticleTypes.END_ROD, flash, 20, 0.3, 0.08);
+		level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.WARDEN_SONIC_BOOM, SoundSource.AMBIENT, 4.0F, 1.0F);
 		level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.FIREWORK_ROCKET_LARGE_BLAST_FAR, SoundSource.AMBIENT, 6.0F, 0.8F);
 		level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.AMBIENT, 3.0F, 0.6F);
-		dropLoot(level, pos);
-	}
-
-	private static void dropLoot(ServerLevel level, Vec3 pos) {
-		if (!level.isLoaded(BlockPos.containing(pos))) {
-			return;
-		}
-		LootTable table = level.getServer().reloadableRegistries().getLootTable(LOOT_TABLE);
-		LootParams params = new LootParams.Builder(level)
-				.withParameter(LootContextParams.ORIGIN, pos)
-				.create(LootContextParamSets.CHEST);
-		String nightTag = NIGHT_TAG_PREFIX + MoonPhase.nightIndex(level);
-		for (ItemStack stack : table.getRandomItems(params)) {
-			ItemEntity item = new ItemEntity(level, pos.x, pos.y + 0.25, pos.z, stack, 0.0, 0.2, 0.0);
-			item.setGlowingTag(true);
-			item.setUnlimitedLifetime();
-			item.addTag(DROP_TAG);
-			item.addTag(nightTag);
-			level.addFreshEntity(item);
-		}
 	}
 
 	/** Sends particles with force = true, so every Overworld player within 512 blocks sees them. */

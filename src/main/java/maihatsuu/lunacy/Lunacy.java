@@ -19,6 +19,7 @@ public class Lunacy implements ModInitializer {
 		LunarEvents.register();
 		ShootingStars.register();
 		EchoShardXp.register();
+		LunacyCommand.register();
 	}
 
 	public static ResourceLocation id(String path) {
