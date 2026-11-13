@@ -1,0 +1,34 @@
+{
+	"lunacy.message.full_moon": "The full moon rises. Something stirs in the dark.",
+	"lunacy.message.new_moon": "The sky goes dark. Stars begin to fall.",
+
+	"config.lunacy.title": "Lunacy",
+	"config.lunacy.category.fullMoon": "Full Moon",
+	"config.lunacy.category.newMoon": "New Moon",
+	"config.lunacy.category.echoShards": "Echo Shards",
+
+	"config.lunacy.option.fullMoonEvents": "Full Moon Surge",
+	"config.lunacy.option.fullMoonEvents.tooltip": "More monsters spawn on full moon nights.",
+	"config.lunacy.option.fullMoonMonsterCapMultiplier": "Monster Cap Multiplier",
+	"config.lunacy.option.fullMoonMonsterCapMultiplier.tooltip": "How much the monster cap is raised on full moon nights.",
+	"config.lunacy.option.fullMoonSkyOnly": "Open Sky Only",
+	"config.lunacy.option.fullMoonSkyOnly.tooltip": "Extra monsters only spawn where the sky is visible. Caves and roofed areas stay vanilla.",
+	"config.lunacy.option.fullMoonMessage": "Full Moon Message",
+	"config.lunacy.option.fullMoonMessage.tooltip": "Show a message on the action bar when a full moon rises.",
+
+	"config.lunacy.option.newMoonEvents": "Shooting Stars",
+	"config.lunacy.option.newMoonEvents.tooltip": "Shooting stars fall on new moon nights.",
+	"config.lunacy.option.newMoonMessage": "New Moon Message",
+	"config.lunacy.option.newMoonMessage.tooltip": "Show a message on the action bar when a new moon night starts.",
+	"config.lunacy.option.starsPerNight": "Stars Per Night",
+	"config.lunacy.option.starsPerNight.tooltip": "Average shooting stars per player per new moon night. Players close together share stars.",
+	"config.lunacy.option.starMinDistance": "Min Landing Distance",
+	"config.lunacy.option.starMinDistance.tooltip": "Closest a star lands to a player, in blocks.",
+	"config.lunacy.option.starMaxDistance": "Max Landing Distance",
+	"config.lunacy.option.starMaxDistance.tooltip": "Farthest a star lands from a player, in blocks.",
+	"config.lunacy.option.starDropsFadeAtDawn": "Drops Fade at Dawn",
+	"config.lunacy.option.starDropsFadeAtDawn.tooltip": "Star drops still on the ground vanish at sunrise.",
+
+	"config.lunacy.option.echoShardXp": "Echo Shard XP",
+	"config.lunacy.option.echoShardXp.tooltip": "Experience points from using an echo shard. 0 turns this off."
+}

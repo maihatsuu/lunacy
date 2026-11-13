@@ -3,9 +3,9 @@
 	"id": "lunacy",
 	"version": "${version}",
 	"name": "Lunacy",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "The moon matters. Full moon nights bring more monsters under the open sky; new moon nights bring shooting stars that leave echo shards behind.",
 	"authors": [
-		"Me!"
+		"maihatsuu"
 	],
 	"contact": {
 		"homepage": "https://github.com/maihatsuu/lunacy",
@@ -18,21 +18,21 @@
 		"main": [
 			"maihatsuu.lunacy.Lunacy"
 		],
-		"client": [
-			"maihatsuu.lunacy.client.LunacyClient"
+		"modmenu": [
+			"maihatsuu.lunacy.client.compat.ModMenuIntegration"
 		]
 	},
 	"mixins": [
-		"lunacy.mixins.json",
-		{
-			"config": "lunacy.client.mixins.json",
-			"environment": "client"
-		}
+		"lunacy.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.20.1",
 		"minecraft": "~1.21.1",
 		"java": ">=21",
 		"fabric-api": "*"
+	},
+	"suggests": {
+		"cloth-config": ">=15.0.0",
+		"modmenu": ">=11.0.0"
 	}
 }

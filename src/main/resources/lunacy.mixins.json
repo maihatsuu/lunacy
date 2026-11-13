@@ -3,7 +3,9 @@
 	"package": "maihatsuu.lunacy.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ExampleMixin"
+		"MobCountsMixin",
+		"NaturalSpawnerMixin",
+		"SpawnStateMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
