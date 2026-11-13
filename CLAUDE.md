@@ -22,6 +22,11 @@ The design spec is `../Lunacy.md`, one directory up from this repo (not committe
   3. If only the second check passes, `skyOnly` is set. A second `@WrapOperation` on `spawnCategoryForChunk` then wraps the `SpawnPredicate` with `level.canSeeSky(pos)`.
 
   As a result, caves and roofed areas spawn exactly as in vanilla. Static state is safe because natural spawning runs on the server thread.
+- `spawn/FullMoonHunt`: the hunt. On full moon nights (not on Peaceful), mobs in the entity tag `#lunacy:full_moon_hunters` that can see the sky and are within `fullMoonHuntRadius` (64) of a survival/adventure player know where that player is. The tag holds surface mobs such as zombies, skeletons, creepers, spiders and witches, and datapacks can edit it.
+  - **Targeting:** every 20 ticks the hunt calls `mob.setTarget(player)`, skipping mobs already after a nearer valid player. Re-assigning is needed because vanilla target goals with `mustSee` drop an unseen target after about 60 ticks.
+  - **Follow range:** a transient `ADD_VALUE` `FOLLOW_RANGE` modifier raises it to at least radius + 8, so mobs keep the target and pathfind the whole way. It's added on `ENTITY_LOAD` and during hunts, and removed at dawn. Transient modifiers aren't saved.
+  - **Walls still matter:** skeletons, witches and creepers still need line of sight to shoot or to swell and explode, so walls protect, but mobs gather outside them.
+- `mixin/CreeperMixin`: when `creepersIgnoreMonsters` is on (the default, and it applies every night, not only full moons), `Creeper.setTarget` is cancelled for any `Enemy` target. Otherwise a creeper hit by a stray skeleton arrow retaliates through `HurtByTargetGoal` and blows up the crowd. Other mobs still infight as in vanilla.
 - `LunarEvents`: `END_WORLD_TICK` edge detection for the moonrise action-bar messages.
 - **Shooting stars:** `star/ShootingStars` + `star/FallingStar`, ticked from `END_WORLD_TICK` in the Overworld.
   - **Spawn chance:** each player rolls `starsPerNight / 10000 / (players within starMaxDistance)` every tick. That's how nearby players share stars.

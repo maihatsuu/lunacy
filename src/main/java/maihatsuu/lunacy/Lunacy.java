@@ -1,6 +1,7 @@
 package maihatsuu.lunacy;
 
 import maihatsuu.lunacy.config.LunacyConfig;
+import maihatsuu.lunacy.spawn.FullMoonHunt;
 import maihatsuu.lunacy.star.ShootingStars;
 import net.fabricmc.api.ModInitializer;
 
@@ -17,6 +18,7 @@ public class Lunacy implements ModInitializer {
 	public void onInitialize() {
 		LunacyConfig.load();
 		LunarEvents.register();
+		FullMoonHunt.register();
 		ShootingStars.register();
 		EchoShardXp.register();
 		LunacyCommand.register();

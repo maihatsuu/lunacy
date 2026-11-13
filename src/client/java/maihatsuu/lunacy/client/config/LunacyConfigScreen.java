@@ -41,6 +41,23 @@ public final class LunacyConfigScreen {
 				.setTooltip(tooltip("fullMoonSkyOnly"))
 				.setSaveConsumer(v -> config.fullMoonSkyOnly = v)
 				.build());
+		fullMoon.addEntry(entries.startBooleanToggle(label("fullMoonHunt"), config.fullMoonHunt)
+				.setDefaultValue(defaults.fullMoonHunt)
+				.setTooltip(tooltip("fullMoonHunt"))
+				.setSaveConsumer(v -> config.fullMoonHunt = v)
+				.build());
+		fullMoon.addEntry(entries.startIntField(label("fullMoonHuntRadius"), config.fullMoonHuntRadius)
+				.setDefaultValue(defaults.fullMoonHuntRadius)
+				.setMin(8)
+				.setMax(128)
+				.setTooltip(tooltip("fullMoonHuntRadius"))
+				.setSaveConsumer(v -> config.fullMoonHuntRadius = v)
+				.build());
+		fullMoon.addEntry(entries.startBooleanToggle(label("creepersIgnoreMonsters"), config.creepersIgnoreMonsters)
+				.setDefaultValue(defaults.creepersIgnoreMonsters)
+				.setTooltip(tooltip("creepersIgnoreMonsters"))
+				.setSaveConsumer(v -> config.creepersIgnoreMonsters = v)
+				.build());
 		fullMoon.addEntry(entries.startBooleanToggle(label("fullMoonMessage"), config.fullMoonMessage)
 				.setDefaultValue(defaults.fullMoonMessage)
 				.setTooltip(tooltip("fullMoonMessage"))

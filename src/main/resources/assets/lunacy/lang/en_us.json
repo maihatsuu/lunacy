@@ -13,6 +13,12 @@
 	"config.lunacy.option.fullMoonMonsterCapMultiplier.tooltip": "How much the monster cap is raised on full moon nights.",
 	"config.lunacy.option.fullMoonSkyOnly": "Open Sky Only",
 	"config.lunacy.option.fullMoonSkyOnly.tooltip": "Extra monsters only spawn where the sky is visible. Caves and roofed areas stay vanilla.",
+	"config.lunacy.option.fullMoonHunt": "The Hunt",
+	"config.lunacy.option.fullMoonHunt.tooltip": "On full moon nights, zombies, skeletons, creepers, spiders and witches out under the open sky always know where you are, and come for you.",
+	"config.lunacy.option.fullMoonHuntRadius": "Hunt Radius",
+	"config.lunacy.option.fullMoonHuntRadius.tooltip": "How far away, in blocks, hunting mobs are drawn in from.",
+	"config.lunacy.option.creepersIgnoreMonsters": "Creepers Ignore Monsters",
+	"config.lunacy.option.creepersIgnoreMonsters.tooltip": "Creepers never go after other monsters, even when hit by a stray arrow. Applies every night, not just full moons.",
 	"config.lunacy.option.fullMoonMessage": "Full Moon Message",
 	"config.lunacy.option.fullMoonMessage.tooltip": "Show a message on the action bar when a full moon rises.",
 
