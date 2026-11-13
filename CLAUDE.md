@@ -6,12 +6,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Lunacy is a Fabric mod for Minecraft **1.21.1** (Java 21, Fabric Loader 0.20.1). Mod id `lunacy`, base package `maihatsuu.lunacy`. Full moon nights bring more surface monsters; new moon nights bring shooting stars.
 
-The design spec is `../Lunacy.md`, one directory up from this repo (not committed). Decisions made on its open questions:
+The user-facing feature list and config table are in `README.md`; keep it in sync when behavior or config changes.
+
+Design decisions:
 - **Star drop:** loot table `lunacy:gameplay/shooting_star`, which is just 1 echo shard (no XP orbs). **Any** echo shard can be right-clicked for `echoShardXp` (25) XP, one per click.
-- **Full moon:** only a monster cap multiplier (×2), with extra spawns limited to sky-visible spots. Mob gear and effects stay vanilla.
+- **Full moon:** a ×2 monster cap (extra spawns only at sky-visible spots) plus the hunt (below). Mob gear and effects stay vanilla.
 - **Moonrise messages:** separate full moon and new moon toggles, both **off** by default.
 - **Overworld only.** "Night" is time of day 13000–23000. This matches Rebalanced Core's full-moon vault recharge (`NIGHT_START = 13000`).
 - **Server-side gameplay:** unmodded clients can join. All gameplay is in `src/main`, and the only client code is the optional config screen. Player-facing text uses `Component.translatableWithFallback` so unmodded clients still see English.
+
+## Notes and open ideas
+
+Carried over from the original design doc, which has been deleted.
+- **Pack context:** Lunacy is part of the Minecraft Rebalanced modpack (`../../Minecraft Rebalanced Modpack/`).
+  - Rebalanced Core recharges trial vaults on the full moon, so full moons double as trial-chamber raid nights.
+  - Core also blocks sleep until the Ender Dragon is dead, so early on you can't skip the hunt.
+- **Echo shard sources:** Snout also gives echo shards (from sniffing sculk), and the pack's NOTES has a Warden echo shard idea. Shards are now worth 25 XP each, so keep the number of sources and the amounts small.
+- **Open:** small touches for the in-between phases, e.g. waxing or waning slightly changing how often stars fall or surges happen.
+- **Untested:**
+  - Two players close together versus far apart: does star sharing behave as configured?
+  - Server performance during the surge and the hunt with many players: watch entity counts and pathfinding cost.
 
 ## How the pieces fit
 
