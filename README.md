@@ -7,10 +7,10 @@ Lunacy is **server-side only**. Install it on a server and vanilla clients can j
 ## Features
 
 ### Full moon: the hunt
-From dusk to dawn on a full moon night (moon phase 0), the surface becomes dangerous.
+From dusk to dawn on a full moon night (moon phase 0), the surface becomes dangerous. Worlds start on a full moon, so the first night is spared: the first hunt is on day 8.
 
-- **More monsters under the open sky.** The monster mob cap is doubled. The extra mobs only spawn where the sky is visible. Caves, roofed bases and lit areas spawn exactly as in vanilla, and torches still protect.
-- **They know where you are.** Zombies, skeletons, creepers, spiders and witches out in the open within 64 blocks of you come straight for you, whether or not they can see you.
+- **More monsters under the open sky.** The monster mob cap is raised by half. The extra mobs only spawn where the sky is visible. Caves, roofed bases and lit areas spawn exactly as in vanilla, and torches still protect.
+- **They know where you are.** Zombies, skeletons, creepers, spiders and witches out in the open within 32 blocks of you come straight for you, whether or not they can see you.
   - They don't give up or lose track over the distance.
   - Walls still protect you: skeletons and witches need line of sight to shoot, and creepers need it to explode. A sealed base keeps you safe, but expect a crowd at the door.
   - Mobs follow you into caves you can walk into. Mobs already underground don't join the hunt.
@@ -42,10 +42,11 @@ The settings live in `config/lunacy.json`, which is created with the defaults on
 | Option | Default | Description |
 |---|---|---|
 | `fullMoonEvents` | `true` | Turn all full moon features on or off. |
-| `fullMoonMonsterCapMultiplier` | `2.0` | Monster cap multiplier on full moon nights. |
+| `fullMoonGraceDays` | `8` | Full moon events don't happen before this day. Worlds start on a full moon, so 8 skips the first one; 0 turns the grace period off. |
+| `fullMoonMonsterCapMultiplier` | `1.5` | Monster cap multiplier on full moon nights. |
 | `fullMoonSkyOnly` | `true` | Extra spawns only where the sky is visible. |
 | `fullMoonHunt` | `true` | Hunting mobs always know where nearby players are. |
-| `fullMoonHuntRadius` | `64` | How far away, in blocks, hunting mobs are drawn in from. |
+| `fullMoonHuntRadius` | `32` | How far away, in blocks, hunting mobs are drawn in from. |
 | `creepersIgnoreMonsters` | `true` | Creepers never target other monsters (every night). |
 | `fullMoonMessage` | `false` | Action bar message when a full moon rises. |
 | `newMoonEvents` | `true` | Turn shooting stars on or off. |

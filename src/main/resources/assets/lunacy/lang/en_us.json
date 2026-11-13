@@ -9,6 +9,8 @@
 
 	"config.lunacy.option.fullMoonEvents": "Full Moon Surge",
 	"config.lunacy.option.fullMoonEvents.tooltip": "More monsters spawn on full moon nights.",
+	"config.lunacy.option.fullMoonGraceDays": "Grace Period (Days)",
+	"config.lunacy.option.fullMoonGraceDays.tooltip": "Full moon events don't happen before this day. 8 skips the world's first night, which is always a full moon.",
 	"config.lunacy.option.fullMoonMonsterCapMultiplier": "Monster Cap Multiplier",
 	"config.lunacy.option.fullMoonMonsterCapMultiplier.tooltip": "How much the monster cap is raised on full moon nights.",
 	"config.lunacy.option.fullMoonSkyOnly": "Open Sky Only",

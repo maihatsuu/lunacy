@@ -19,14 +19,16 @@ public class LunacyConfig {
 
 	/** Raise the monster cap on full moon nights. */
 	public boolean fullMoonEvents = true;
+	/** Full moon events don't happen before this day. 8 skips the world's first night (a full moon). */
+	public int fullMoonGraceDays = 8;
 	/** Monster cap multiplier on full moon nights. */
-	public double fullMoonMonsterCapMultiplier = 2.0;
+	public double fullMoonMonsterCapMultiplier = 1.5;
 	/** Spawns above the vanilla cap only happen where the sky is visible. */
 	public boolean fullMoonSkyOnly = true;
 	/** Mobs in #lunacy:full_moon_hunters under the open sky always know where nearby players are. */
 	public boolean fullMoonHunt = true;
 	/** How far from a player hunting mobs are drawn in, in blocks. */
-	public int fullMoonHuntRadius = 64;
+	public int fullMoonHuntRadius = 32;
 	/** Creepers never target other monsters (always, not only on full moons). */
 	public boolean creepersIgnoreMonsters = true;
 	/** Action bar message when a full moon rises. */
@@ -80,6 +82,7 @@ public class LunacyConfig {
 	}
 
 	private void sanitize() {
+		fullMoonGraceDays = Math.clamp(fullMoonGraceDays, 0, 800);
 		fullMoonMonsterCapMultiplier = Math.clamp(fullMoonMonsterCapMultiplier, 1.0, 10.0);
 		fullMoonHuntRadius = Math.clamp(fullMoonHuntRadius, 8, 128);
 		starsPerNight = Math.clamp(starsPerNight, 0.0, 100.0);

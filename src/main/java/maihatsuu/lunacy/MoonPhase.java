@@ -1,5 +1,6 @@
 package maihatsuu.lunacy;
 
+import maihatsuu.lunacy.config.LunacyConfig;
 import net.minecraft.world.level.Level;
 
 /** Moon phase helpers. Lunacy only acts in the Overworld, the only dimension with a moon. */
@@ -23,8 +24,12 @@ public final class MoonPhase {
 		return time >= NIGHT_START && time < NIGHT_END;
 	}
 
+	/**
+	 * A full moon night, once the world is {@code fullMoonGraceDays} old. Vanilla worlds start on a
+	 * full moon, so by default the first one (day 0) is skipped and the first is on day 8.
+	 */
 	public static boolean isFullMoonNight(Level level) {
-		return isNight(level) && level.getMoonPhase() == FULL;
+		return isNight(level) && level.getMoonPhase() == FULL && nightIndex(level) >= LunacyConfig.get().fullMoonGraceDays;
 	}
 
 	public static boolean isNewMoonNight(Level level) {

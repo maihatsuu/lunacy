@@ -29,6 +29,13 @@ public final class LunacyConfigScreen {
 				.setTooltip(tooltip("fullMoonEvents"))
 				.setSaveConsumer(v -> config.fullMoonEvents = v)
 				.build());
+		fullMoon.addEntry(entries.startIntField(label("fullMoonGraceDays"), config.fullMoonGraceDays)
+				.setDefaultValue(defaults.fullMoonGraceDays)
+				.setMin(0)
+				.setMax(800)
+				.setTooltip(tooltip("fullMoonGraceDays"))
+				.setSaveConsumer(v -> config.fullMoonGraceDays = v)
+				.build());
 		fullMoon.addEntry(entries.startDoubleField(label("fullMoonMonsterCapMultiplier"), config.fullMoonMonsterCapMultiplier)
 				.setDefaultValue(defaults.fullMoonMonsterCapMultiplier)
 				.setMin(1.0)
